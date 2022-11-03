@@ -126,8 +126,10 @@ route.get('/chat', chat = function( data ) {
       showChat(data);
     } else {
       //console.log(document.querySelectorAll('#user-'+data.userid+' .badge'));
+      console.log( data );
+      let val = parseInt( document.querySelectorAll('#user-'+data.userid+' .badge')[0].innerHTML );
 
-      document.querySelectorAll('#user-'+toUser.id+' .badge').innerHTML += '1';
+      document.querySelectorAll('#user-'+data.userid+' .badge')[0].innerHTML = val + 1 ;
     }
   }
 
