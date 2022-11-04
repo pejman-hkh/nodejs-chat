@@ -302,7 +302,7 @@ route.post('/login', async function( req, res ) {
     let user = await query("select * from users where username = ? ", [ req.post.username ] );
     mysqlEnd();
  
-    if( !user[0] && !user[0].id ) {
+    if( ! user[0] || ! user[0].id ) {
       return [0,'User not exists !'];
     }
 

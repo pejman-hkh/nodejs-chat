@@ -189,8 +189,9 @@ document.addEventListener("submit", function( event ) {
         var data = new URLSearchParams(new FormData(event.target)).toString();
 
         ajax.post( event.target.getAttribute('action')+'?ajax', data, function( data ) {
+        
             data = JSON.parse(data);
-            if( data[2].redirect ) {
+            if( data[2] && data[2].redirect ) {
                 history.pushState({}, null, data[2].redirect );
             }
 
