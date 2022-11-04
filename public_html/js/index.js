@@ -2,30 +2,6 @@ if ('serviceWorker' in navigator) {
    navigator.serviceWorker.register("/serviceworker.js");
 }
 
-route.get('/register', function( data ) {
-  return `
-    <div class="row">
-    <div class="col-md-6 m-auto">    
-  <h1>Register</h1>
-  <form action="/register" method="post" id="register">
-  <div class="form-floating mb-2">
-  <input type="text" class="form-control" id="username" name="username">
-  <label for="username">Name</label>
-  </div>      
-
-  <div class="form-floating mb-2">
-  <input type="text" class="form-control" id="password" name="password">
-  <label for="password">Password</label>
-  </div>
- 
-  <button type="submit" class="btn btn-primary">Register</button>
-</form>
-</div>
-</div>
-`;
-
-});
-
 let chat;
 let chats = [];
 
@@ -109,7 +85,7 @@ route.get('/chat', chat = function( data ) {
     $("#emoji").toggleClass('d-none');
   });
 
-  let ws = new WebSocket("wss://localhost:8081");
+  let ws = new WebSocket("wss://"+host+":8002");
   
   ws.onopen = (event) => {
     ws.send( JSON.stringify ({ type: "open", id : user.id, login : user.login, text : '', date: Date.now(), touser : toUser.username }) );
@@ -144,7 +120,7 @@ route.get('/chat', chat = function( data ) {
           let tws = ws;
           ws.close();
           
-          ws = new WebSocket("wss://localhost:8081");
+          ws = new WebSocket("wss://"+host+":8002");
           ws.onopen = tws.onopen;
           ws.onmessage = tws.onmessage;
     }
@@ -158,7 +134,7 @@ route.get('/chat', chat = function( data ) {
           let tws = ws;
           ws.close();
           
-          ws = new WebSocket("wss://localhost:8081");
+          ws = new WebSocket("wss://"+host+":8002");
           ws.onopen = tws.onopen;
           ws.onmessage = tws.onmessage;
           let it = setInterval(function() {
@@ -204,9 +180,49 @@ route.get('/login', function() {
  
   <button type="submit" class="btn btn-primary">Login</button>
 </form>
+
+      <br />
+
+      <center>
+      <a href="/register">Register</a> / 
+      <a href="/login">Login</a>
+      </center>
+
   </div></div>
 `;
 });
+
+
+route.get('/register', function( data ) {
+  return `
+    <div class="row">
+    <div class="col-md-6 m-auto">    
+  <h1>Register</h1>
+  <form action="/register" method="post" id="register">
+  <div class="form-floating mb-2">
+  <input type="text" class="form-control" id="username" name="username">
+  <label for="username">Name</label>
+  </div>      
+
+  <div class="form-floating mb-2">
+  <input type="text" class="form-control" id="password" name="password">
+  <label for="password">Password</label>
+  </div>
+ 
+  <button type="submit" class="btn btn-primary">Register</button>
+</form>
+      <br />
+
+      <center>
+      <a href="/register">Register</a> / 
+      <a href="/login">Login</a>
+      </center>
+</div>
+</div>
+`;
+
+});
+
 
 route.dispatch();
 
