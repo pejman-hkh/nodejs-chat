@@ -83,7 +83,7 @@ wss.on('connection',  function(ws) {
       if( userid ) {
         let q1 = await query('INSERT INTO chats SET ?', { userid : userid, text : jdata.text, date : Date.now(), type : 1, touserid : touserid });
       }
-      let sendMsg = JSON.stringify({type : 'msg', text : jdata.text, userid : userid });
+      let sendMsg = JSON.stringify({type : 'msg', text : jdata.text, userid : userid, date : Date.now() });
 
       //send to self
       ws.send( sendMsg, { binary: isBinary} );

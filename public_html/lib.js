@@ -134,7 +134,11 @@ function showChat( v ) {
     }
     from = '';
 
-    document.getElementById('chat').innerHTML += '<div><div class="pull-left">'+from+'</div><div class="card chat-p '+dir+' '+color+'"><div class="card-body">'+v.text+"</div></div></div>";
+    var date = new Date(v.date);
+    var hours = date.getHours()+":"+date.getMinutes();
+
+
+    document.getElementById('chat').innerHTML += '<div class="chat-text"><div class="pull-left">'+from+'</div><div class="card chat-p '+dir+' '+color+'"><div class="card-body">'+v.text+'<br /><span class="time">'+hours+'</span></div></div></div>';
     var od = document.getElementById("chat");
     od.scrollTop = od.scrollHeight;
     document.getElementById('text').focus();    
@@ -153,7 +157,7 @@ document.addEventListener("click", function (event) {
         if( href.substr(0,1) == '@' ) {
             document.querySelectorAll('#sendForm').removeClass('d-none');
             document.querySelectorAll(event.target).find('.badge').html('0');
-            
+
             document.getElementById('chat').innerHTML = '';
             document.querySelectorAll('.list-group-item').removeClass('active');
 
