@@ -390,10 +390,10 @@ route.post("/chat/list", async function( req, res ) {
   await query("update chats set seen = 1 where userid = ? and touserid = ? and seen = 0 ", [ touser[0].id, user[0].id ] );
 
   if( user[0].id == touser[0].id ) {
-    var rs = await query('select * from chats where (userid = ? and touserid = ?) order by id asc limit 0, 50', [ user[0].id, user[0].id ]);
+    var rs = await query('select * from chats where (userid = ? and touserid = ?) order by id desc limit 0, 50', [ user[0].id, user[0].id ]);
     
   } else {
-    var rs = await query('select * from chats where (userid = ? or touserid = ?) and ( userid = ? or touserid = ? ) order by id asc limit 0, 50', [ user[0].id, user[0].id, touser[0].id, touser[0].id ]);
+    var rs = await query('select * from chats where (userid = ? or touserid = ?) and ( userid = ? or touserid = ? ) order by id desc limit 0, 50', [ user[0].id, user[0].id, touser[0].id, touser[0].id ]);
   }
 
 

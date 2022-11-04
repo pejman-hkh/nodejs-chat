@@ -166,7 +166,7 @@ document.addEventListener("click", function (event) {
                 data = JSON.parse(data);
                 toUser.username = data[3].username;
                 toUser.id = data[3].id;
-                data = data[2];
+                data = data[2].reverse();
                 for( let x in data ) {
                     let v = data[x];
                     showChat(v);
