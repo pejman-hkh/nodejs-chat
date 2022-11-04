@@ -39,7 +39,7 @@ route.get('/chat', chat = function( data ) {
       <form id="sendForm" class="d-none">
     
         <div class="form-floating">
-          <input type="text" class="form-control" id="text">
+          <input type="text" class="form-control" id="text" autocomplete="off">
           <label for="text">Message</label>
           <span id="emoji-p">😀</span>
 
@@ -185,7 +185,8 @@ route.get('/login', function() {
 
       <center>
       <a href="/register">Register</a> / 
-      <a href="/login">Login</a>
+      <a href="/login">Login</a> /
+      <a href="/">Chat</a>
       </center>
 
   </div></div>
@@ -215,7 +216,8 @@ route.get('/register', function( data ) {
 
       <center>
       <a href="/register">Register</a> / 
-      <a href="/login">Login</a>
+      <a href="/login">Login</a> /
+      <a href="/">Chat</a>
       </center>
 </div>
 </div>
