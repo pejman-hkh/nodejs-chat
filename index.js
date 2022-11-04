@@ -11,8 +11,8 @@ var stringHash = '^QFY@#$XA712SU&&@#!Jsxcayii^^*3416';
 var indexHtml = readFileSync('public_html/index.html').toString();
 
 const server = createServer({
-  cert: readFileSync('openssl/server-cert.pem'),
-  key: readFileSync('openssl/server-key.pem')
+  cert: readFileSync( config.ssl.cert ),
+  key: readFileSync( config.ssl.key )
 });
 const wss = new WebSocketServer({ server });
 
@@ -21,7 +21,7 @@ var query;
 
 function mysqlInit() {
 
-  connection = mysql.createConnection(config);
+  connection = mysql.createConnection(config.db);
    
   connection.connect();
   query = util.promisify(connection.query).bind(connection);
