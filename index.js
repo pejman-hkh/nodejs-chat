@@ -202,8 +202,8 @@ var route =  {
 }
 
 createServer({
-  cert: readFileSync('openssl/server-cert.pem'),
-  key: readFileSync('openssl/server-key.pem')
+  cert: readFileSync( config.ssl.cert ),
+  key: readFileSync( config.ssl.key )
 }, function (req, res) {
 
   const { headers, method, url } = req;
