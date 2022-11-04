@@ -45,6 +45,20 @@ wss.on('connection',  function(ws) {
     let jdata = JSON.parse( data );
  
     mysqlInit();
+    if( jdata.type == "seen" ) {
+
+      let touser = await query("select id, username from users where username = ? ", [ jdata.touser ] );
+
+      if( touser[0] )
+        await query("update chats set seen = 1 where userid = ? and touserid = ? and seen = 0 ", [ touser[0].id, ws.id ] );
+
+        let fws = clients1[touser[0].id];
+
+        //send to friend
+        if( fws )
+          fws.send(JSON.stringify({type : 'seen', userid : ws.id }), { binary: isBinary});
+    }
+
     if( jdata.type == "open" ) {
 
       let user = await query("select id,username,login from users where id = ? ", [ jdata.id ] );
@@ -350,6 +364,24 @@ route.post("/register", async function( req, res ) {
 route.get("/chat", function( req, res ) {
   return indexHtml;
 });
+
+/*route.post("/chat/seen", async function( req, res ) {
+  mysqlInit();
+
+
+  let login = JSON.parse( req.cookies.login );
+  let user = await query("select id from users where id = ? and login = ? ", [ login[0], login[1] ] );
+  let touser = await query("select id, username from users where id = ? ", [ req.post.touser ] );
+ 
+  if( touser[0] && user[0] )
+    await query("update chats set seen = 1 where userid = ? and touserid = ? and seen = 0 ", [ touser[0].id, user[0].id ] );
+
+  mysqlEnd();
+  
+  return [ 1, 'Ok' ];
+
+});*/
+
 
 route.post("/chat/list", async function( req, res ) {
 

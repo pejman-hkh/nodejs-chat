@@ -114,3 +114,7 @@ body {
 .list-group {
     border-radius: 0;
 }
+
+#emoji-p {
+  cursor: pointer;
+}

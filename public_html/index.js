@@ -119,16 +119,22 @@ route.get('/chat', chat = function( data ) {
   ws.onmessage = (event ) => {
     let data = JSON.parse( event.data );
     console.log( data );
+    if( data.type == "seen" ) {
+      
+    }
 
     chats.push(data);
 
     if( data.userid == toUser.id || data.userid == user.id ) {
       showChat(data);
-    } else {
-      //console.log(document.querySelectorAll('#user-'+data.userid+' .badge'));
-      console.log( data );
-      let val = parseInt( document.querySelectorAll('#user-'+data.userid+' .badge')[0].innerHTML );
+      //console.log(data);
 
+      if( data.userid == toUser.id ) {
+        ws.send( JSON.stringify ({ type: "seen", date: Date.now(), touser : toUser.username }) );
+      }
+
+    } else {
+      let val = parseInt( document.querySelectorAll('#user-'+data.userid+' .badge')[0].innerHTML );
       document.querySelectorAll('#user-'+data.userid+' .badge')[0].innerHTML = val + 1 ;
     }
   }
