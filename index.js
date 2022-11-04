@@ -36,21 +36,6 @@ function mysqlEnd() {
   connection.end();
 }
 
-async function sendLastMessageToUsers(ws, userid, touserid ) {
-  //mysqlInit();
-  //console.log( userid );
-
-  var rs = await query('select * from chats where (userid = ? or touserid = ?) and ( userid = ? or touserid = ? ) order by id asc limit 0, 50', [ userid, userid, touserid, touserid ]);
-
-  for( let k in rs ) {
-    let v = rs[k];
-    ws.send( JSON.stringify({text: v.text}) );
-  }
-
-  //mysqlEnd();
-}
-
-var clients = {};
 var clients1 = {};
 
 wss.on('connection',  function(ws) {
@@ -77,7 +62,7 @@ wss.on('connection',  function(ws) {
       let toUser = await query("select id from users where username = ? ", [ jdata.touser ] );
 
       let touserid = (toUser[0]?toUser[0].id:0);
-      console.log( ws.id );
+      //console.log( ws.id );
 
       let userid = ws.id;
 
@@ -101,7 +86,7 @@ wss.on('connection',  function(ws) {
   });
 
   ws.on('close', function() {
-    clients[ws] = 0;
+
    for( let k in clients1 ) {
       let v = clients1[k];
       if( v == ws ) {
@@ -178,9 +163,6 @@ var route =  {
     }
 
     return [ 404, '404 page not found', this.headers ];
-    //res.writeHead(200);
-    //res.end( ret );
-
   },
   post : function( path, cb ) {
     this.routes.push([ path, cb, 2 ]);
@@ -322,29 +304,14 @@ route.post('/login', async function( req, res ) {
 });
 
 route.get("/login", function( req, res ) {
-  this.setCookie('test', 'val');
-  //this.setHeader();
-
-  //console.log( this.cookies.test );
 
   return indexHtml;
-
-
-  //return indexHtml;
-
-  //return [1, 'this is test', {a : 1, b : 2} ];
 });
 
 
 route.get("/register", function( req, res ) {
 
-    //res.writeHead(200);
-    //res.end( indexHtml );
-
-  //res.writeHead(200);
-  //res.end( indexHtml );
   return indexHtml;
-
 });
 
 route.post("/register", async function( req, res ) {
@@ -388,9 +355,12 @@ route.post("/chat/list", async function( req, res ) {
 
   mysqlInit();
 
+
   let login = JSON.parse( req.cookies.login );
   let user = await query("select id from users where id = ? and login = ? ", [ login[0], login[1] ] );
   let touser = await query("select id, username from users where username = ? ", [ req.post.touser ] );
+
+  await query("update chats set seen = 1 where userid = ? and touserid = ? and seen = 0 ", [ touser[0].id, user[0].id ] );
 
   if( user[0].id == touser[0].id ) {
     var rs = await query('select * from chats where (userid = ? and touserid = ?) order by id asc limit 0, 50', [ user[0].id, user[0].id ]);

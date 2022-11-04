@@ -152,7 +152,8 @@ document.addEventListener("click", function (event) {
         let href = event.target.getAttribute('href');
         if( href.substr(0,1) == '@' ) {
             document.querySelectorAll('#sendForm').removeClass('d-none');
-
+            document.querySelectorAll(event.target).find('.badge').html('0');
+            
             document.getElementById('chat').innerHTML = '';
             document.querySelectorAll('.list-group-item').removeClass('active');
 
