@@ -5,6 +5,7 @@ import mysql from 'mysql';
 import util from 'util';
 import qs from 'querystring';
 import crypto from 'crypto';
+import config from './config.js';
 
 var stringHash = '^QFY@#$XA712SU&&@#!Jsxcayii^^*3416';
 var indexHtml = readFileSync('public_html/index.html').toString();
@@ -20,13 +21,7 @@ var query;
 
 function mysqlInit() {
 
-  connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '12c',
-    database : 'chat',
-    charset : 'utf8mb4'
-  });
+  connection = mysql.createConnection(config);
    
   connection.connect();
   query = util.promisify(connection.query).bind(connection);
