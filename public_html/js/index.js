@@ -1,6 +1,18 @@
-if ('serviceWorker' in navigator) {
-   navigator.serviceWorker.register("/serviceworker.js");
-}
+navigator.serviceWorker.register('/sw.js');
+Notification.requestPermission(function(result) {
+  if (result === 'granted') {
+
+  }
+});
+
+var inApp = true;
+window.addEventListener('blur', function(){
+  inApp = false;
+}, false );
+
+window.addEventListener('focus', function(){
+  inApp = true;
+}, false);
 
 let chat;
 let chats = [];
@@ -21,8 +33,19 @@ route.get('/chat', chat = function( data ) {
 
   this.setHtml(`
     <h3>`+user.username+` welcome</h3>
+    <div id="log"></div>
+
+     <div class="">
+      <a href="/register">Register</a> / 
+      <a href="/login">Login</a>
+      </div>
+          
+      <br />
+
     <div class="row">
     <div class="col-md-4">
+
+
     <ul style="padding-left:0"  class="list-group" id="users">
     `+listh+`
     </ul>
@@ -30,6 +53,7 @@ route.get('/chat', chat = function( data ) {
     </div>
   
     <div class="col-md-8">
+      <div id="main-chat">
       <div id="chat-card">
         <div id="chat">
           <div>Select a chat to start messaging</div>
@@ -41,21 +65,24 @@ route.get('/chat', chat = function( data ) {
         <div class="form-floating">
           <input type="text" class="form-control" id="text" autocomplete="off">
           <label for="text">Message</label>
-          <span id="emoji-p">😀</span>
+
+        <button id="btn-send" type="submit" class="btn btn-primary" style="width:70px">
+           <span class="font-bold"></span>
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-6 w-6 ml-2 transform rotate-90">
+              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+           </svg>
+        </button>
+
+          <span id="emoji-p"></span>
 
         <div id="emoji" class="d-none">
         <div></div>
         </div>
+
+
         </div>
-
-    
       </form>
-      <br />
-
-      <center>
-      <a href="/register">Register</a> / 
-      <a href="/login">Login</a>
-      </center>
+      </div>
     </div>
     </div>
     `);
@@ -101,6 +128,15 @@ route.get('/chat', chat = function( data ) {
 
     chats.push(data);
 
+    if( ! inApp ) {
+      if( data.userid != user.id ) {
+
+        navigator.serviceWorker.ready.then(function(registration) {
+          registration.showNotification( data.text );
+        });
+      }
+    }
+
     if( data.userid == toUser.id || data.userid == user.id ) {
       showChat(data);
       //console.log(data);
@@ -110,6 +146,7 @@ route.get('/chat', chat = function( data ) {
       }
 
     } else {
+
       let val = parseInt( document.querySelectorAll('#user-'+data.userid+' .badge')[0].innerHTML );
       document.querySelectorAll('#user-'+data.userid+' .badge')[0].innerHTML = val + 1 ;
     }

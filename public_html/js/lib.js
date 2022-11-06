@@ -125,23 +125,26 @@ function showChat( v ) {
 
     let color = '';
     //console.log(v);
+    let boxDir = 'left';
+
 
     if( v.userid == user.id ) {
         color = 'bg-green';
+        boxDir = 'right';
         from = user.username;
     } else {
         from = toUser.username;
     }
-    from = '';
+    //from = '';
 
     var date = new Date(v.date);
     var hours = date.getHours()+":"+date.getMinutes();
 
 
-    document.getElementById('chat').innerHTML += '<div class="chat-text"><div class="pull-left">'+from+'</div><div class="card chat-p '+dir+' '+color+'"><div class="card-body">'+v.text+'<br /><span class="time">'+hours+'</span></div></div></div>';
+    document.getElementById('chat').innerHTML += '<div class="chat-text '+boxDir+'"><div class="card chat-p '+dir+' '+color+'"><div class="card-body">'+v.text+'<br /><span class="time">'+hours+'</span></div></div></div>';
     var od = document.getElementById("chat");
     od.scrollTop = od.scrollHeight;
-    document.getElementById('text').focus();    
+    //document.getElementById('text').focus();    
 }
 
 document.addEventListener("click", function (event) {

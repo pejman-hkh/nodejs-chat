@@ -127,3 +127,31 @@ body {
   float: left;
   clear: both;
 }
+
+#btn-send {
+    position: absolute;
+    right: 0;
+    top: 0;
+    border-radius: 0;
+}
+
+.rotate-90 {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+.chat-text.right {
+    float: right;
+    clear: both;
+}
+
+#chat {
+  border-bottom: 0;
+}
+
+#main-chat {
+  min-height: 100%;
+}

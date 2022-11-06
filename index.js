@@ -201,6 +201,52 @@ var route =  {
   }
 }
 
+
+function serveStatic( pathname, res ) {
+  let sp = pathname.split('.');
+  const ext = '.'+sp[ sp.length - 1];
+
+  // maps file extension to MIME typere
+  const map = {
+    '.ico': 'image/x-icon',
+    '.html': 'text/html',
+    '.js': 'text/javascript',
+    '.json': 'application/json',
+    '.css': 'text/css',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.wav': 'audio/wav',
+    '.mp3': 'audio/mpeg',
+    '.svg': 'image/svg+xml',
+    '.pdf': 'application/pdf',
+    '.doc': 'application/msword'
+  };
+
+  fs.exists(pathname, function (exist) {
+    if(!exist) {
+      // if the file is not found, return 404
+      res.statusCode = 404;
+      res.end(`File ${pathname} not found!`);
+      return;
+    }
+
+    // if is a directory search for index file matching the extension
+    if (fs.statSync(pathname).isDirectory()) pathname += '/index' + ext;
+
+    // read file from file system
+    fs.readFile(pathname, function(err, data){
+      if(err){
+        res.statusCode = 500;
+        res.end(`Error getting the file: ${err}.`);
+      } else {
+        // if the file is found, set Content-type and send data
+        res.setHeader('Content-type', map[ext] || 'text/html' );
+        res.end(data);
+      }
+    });
+  });
+}
+
 createServer({
   cert: readFileSync( config.ssl.cert ),
   key: readFileSync( config.ssl.key )
@@ -222,8 +268,9 @@ createServer({
     let path = 'public_html'+req.url;
 
     if (fs.existsSync( path )) {
-      res.writeHead(200);
-      res.end( readFileSync( path ) );
+      serveStatic( path, res );
+/*      res.writeHead(200);
+      res.end( readFileSync( path ) );*/
     } else {
       let ret = await route.dispatch( req, res, body );
       //console.log( ret );
@@ -390,10 +437,10 @@ route.post("/chat/list", async function( req, res ) {
   await query("update chats set seen = 1 where userid = ? and touserid = ? and seen = 0 ", [ touser[0].id, user[0].id ] );
 
   if( user[0].id == touser[0].id ) {
-    var rs = await query('select * from chats where (userid = ? and touserid = ?) order by id desc limit 0, 50', [ user[0].id, user[0].id ]);
+    var rs = await query('select * from chats where (userid = ? and touserid = ?) order by id desc limit 0, 20', [ user[0].id, user[0].id ]);
     
   } else {
-    var rs = await query('select * from chats where (userid = ? or touserid = ?) and ( userid = ? or touserid = ? ) order by id desc limit 0, 50', [ user[0].id, user[0].id, touser[0].id, touser[0].id ]);
+    var rs = await query('select * from chats where (userid = ? or touserid = ?) and ( userid = ? or touserid = ? ) order by id desc limit 0, 20', [ user[0].id, user[0].id, touser[0].id, touser[0].id ]);
   }
 
 
