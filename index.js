@@ -31,67 +31,92 @@ function mysqlEnd() {
   connection.end();
 }
 
+//let connection1 = mysql.createConnection(config.db);
+//connection1.connect();
+
+config.db.connectionLimit = 100;
+var pool  = mysql.createPool(config.db);
+let query1 = util.promisify(pool.query).bind(pool);
+
+
+//mysqlInit();
+
 var clients1 = {};
 
-wss.on('connection',  function(ws) {
+wss.on('connection', function(ws) {
 
-  ws.on('message', async function(data, isBinary) {
+  ws.on('message', function(data, isBinary) {
  
     let jdata = JSON.parse( data );
  
-    mysqlInit();
+    
     if( jdata.type == "seen" ) {
 
-      let touser = await query("select id, username from users where username = ? ", [ jdata.touser ] );
+      let touser = query1("select id, username from users where username = ? ", [ jdata.touser ] );
+      touser.then(function( touser ) {
 
-      if( touser[0] )
-        await query("update chats set seen = 1 where userid = ? and touserid = ? and seen = 0 ", [ touser[0].id, ws.id ] );
+        if( touser[0] ) {
+          let up = query1("update chats set seen = 1 where userid = ? and touserid = ? and seen = 0 ", [ touser[0].id, ws.id ] );
+        }
 
         let fws = clients1[touser[0].id];
 
         //send to friend
         if( fws )
           fws.send(JSON.stringify({type : 'seen', userid : ws.id }), { binary: isBinary});
+      });
+
     }
 
     if( jdata.type == "open" ) {
 
-      let user = await query("select id,username,login from users where id = ? ", [ jdata.id ] );
+      let user = query1("select id,username,login from users where id = ? ", [ jdata.id ] );
+  
+      user.then(function( user ) {
+        if( jdata.login != user[0].login ) {
+          ws.send(JSON.stringify({text: 'Login Faild'}) );
+        } else {
+          ws.id = user[0].id;
+          clients1[ user[0].id ] = ws;
+        }
+      });
 
-      if( jdata.login != user[0].login ) {
-        ws.send(JSON.stringify({text: 'Login Faild'}) );
-      } else {
-        ws.id = user[0].id;
-        clients1[ user[0].id ] = ws;
-      }
     }
 
     if( jdata.type == "msg" && jdata.text ) {
       
-      let toUser = await query("select id from users where username = ? ", [ jdata.touser ] );
+      let toUser = query1("select id from users where username = ? ", [ jdata.touser ] );
 
-      let touserid = (toUser[0]?toUser[0].id:0);
-      //console.log( ws.id );
+      toUser.then(function( toUser ) {
+        let touserid = (toUser[0]?toUser[0].id:0);
+        //console.log( ws.id );
 
-      let userid = ws.id;
+        let userid = ws.id;
 
-      if( userid ) {
-        let q1 = await query('INSERT INTO chats SET ?', { userid : userid, text : jdata.text, date : Date.now(), type : 1, touserid : touserid });
-      }
-      let sendMsg = JSON.stringify({type : 'msg', text : jdata.text, userid : userid, date : Date.now() });
+        if( userid ) {
+          let q1 = query1('INSERT INTO chats SET ?', { userid : userid, text : jdata.text, date : Date.now(), type : 1, touserid : touserid });
+        }
 
-      //send to self
-      ws.send( sendMsg, { binary: isBinary} );
-      if( toUser[0] && toUser[0].id != userid ) {
-        let fws = clients1[toUser[0].id];
+        //q1.then(function() {
+          let sendMsg = JSON.stringify({type : 'msg', text : jdata.text, userid : userid, date : Date.now() });
 
-        //send to friend
-        if( fws )
-        fws.send(sendMsg, { binary: isBinary});
-      }
+          //send to self
+          ws.send( sendMsg, { binary: isBinary} );
+          if( toUser[0] && toUser[0].id != userid ) {
+            let fws = clients1[toUser[0].id];
+
+            //send to friend
+            if( fws )
+            fws.send(sendMsg, { binary: isBinary});
+          }
+
+        //});
+      });
+
+
     }
 
-    mysqlEnd();
+    //mysqlEnd();
   });
 
   ws.on('close', function() {
@@ -406,24 +431,6 @@ route.post("/register", async function( req, res ) {
 route.get("/chat", function( req, res ) {
   return indexHtml;
 });
-
-/*route.post("/chat/seen", async function( req, res ) {
-  mysqlInit();
-
-
-  let login = JSON.parse( req.cookies.login );
-  let user = await query("select id from users where id = ? and login = ? ", [ login[0], login[1] ] );
-  let touser = await query("select id, username from users where id = ? ", [ req.post.touser ] );
- 
-  if( touser[0] && user[0] )
-    await query("update chats set seen = 1 where userid = ? and touserid = ? and seen = 0 ", [ touser[0].id, user[0].id ] );
-
-  mysqlEnd();
-  
-  return [ 1, 'Ok' ];
-
-});*/
-
 
 route.post("/chat/list", async function( req, res ) {
 
